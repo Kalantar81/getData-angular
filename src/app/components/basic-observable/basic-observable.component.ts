@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { interval, Subscription, from } from 'rxjs';
+import {filter, map, take, scan} from 'rxjs/operators';
 import { GetDataService } from 'src/app/global-services/get-data.service';
 
 @Component({
@@ -11,16 +12,30 @@ export class BasicObservableComponent implements OnInit {
 
   private dataSubscription: Subscription;
 
-  public dataFromServer: any;
+  public dataFromServer = [];
+  stream$: any
 
-  constructor(private getDataService: GetDataService) { }
+  constructor(private getDataService: GetDataService) {
+
+   }
 
   ngOnInit() {
-    this.dataSubscription = this.getDataService.getData('assets/data/cars.json').subscribe(
+    this.dataSubscription = this.getDataService.getData('assets/data/cars.json')
+    .subscribe(
       (data: string) => {
-        this.dataFromServer = data;
+        this.stream$ = from(data).pipe(
+          take(10),
+          map(v => {
+            this.dataFromServer.push(v);
+            console.log(v);
+          })
+        )
       }
     );
+  }
+
+  btn():void {
+    this.stream$.subscribe(arg => {});
   }
 
 }
