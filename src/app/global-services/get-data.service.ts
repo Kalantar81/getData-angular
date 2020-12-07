@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { ICarsData } from '../models/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -23,9 +24,20 @@ export class GetDataService {
     }, 5000);
   });
 
-  constructor(private http: HttpClient) { }
 
-  public getData(p_jsonUrl: string): Observable<any> {
-    return this.http.get(p_jsonUrl)
+  constructor(private http: HttpClient) {}
+
+  public getCarsData$(jsonUrl: string): Observable<Array<ICarsData>> {
+    const carsData$ = new Observable((observer: Observer<Array<ICarsData>>) => {
+      this.http.get(jsonUrl)
+         .subscribe((data: ICarsData[]) => {
+           observer.next(data);
+      });
+    });
+  return carsData$;
+  }
+
+  private getData(jsonUrl: string): Observable<any> {
+    return this.http.get(jsonUrl);
   }
 }
